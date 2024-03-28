@@ -1,0 +1,111 @@
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+class FitnessClass {
+private:
+    string className;
+    int availableSlots;
+public:
+    FitnessClass(string name, int slots) : className(name), availableSlots(slots) {}
+
+    string getName() const {
+        return className;
+    }
+
+    int getAvailableSlots() const {
+        return availableSlots;
+    }
+
+    bool bookSlot() {
+        if (availableSlots > 0) {
+            availableSlots--;
+            return true;
+        }
+        return false;
+    }
+    
+    void displayRemainingSlots() const {
+        cout << "Remaining Slots for " << className << ": " << availableSlots << endl;
+    }
+    
+};
+
+class Booking {
+private:
+    string memberName;
+    FitnessClass* bookedClass;
+public:
+    Booking(string name, FitnessClass* fitnessClass) : memberName(name), bookedClass(fitnessClass) {}
+
+    string getMemberName() const {
+        return memberName;
+    }
+
+    FitnessClass* getBookedClass() const {
+        return bookedClass;
+    }
+};
+
+class Gym {
+private:
+    vector<FitnessClass> classes;
+    vector<Booking> bookings;
+public:
+    void addFitnessClass(const FitnessClass& fitnessClass) {
+        classes.push_back(fitnessClass);
+    }
+
+    vector<FitnessClass> getAvailableClasses() const {
+        return classes;
+    }
+
+    bool bookClass(const string& memberName, FitnessClass* fitnessClass) {
+        for (auto& cls : classes) {
+            if (cls.getName() == fitnessClass->getName() && cls.bookSlot()) {
+                bookings.push_back(Booking(memberName, fitnessClass));
+                cls.displayRemainingSlots();
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
+int main() {
+    Gym gym;
+
+    gym.addFitnessClass(FitnessClass("Strength Training", 2));
+    gym.addFitnessClass(FitnessClass("Balance Exercises", 7));
+    gym.addFitnessClass(FitnessClass("Aerobics", 4));
+    
+    cout << "The Gym Trainings are as follows:\n";
+    vector<FitnessClass> availableClasses = gym.getAvailableClasses();
+    for (size_t i = 0; i < availableClasses.size(); ++i) {
+        cout << i + 1 << ". " << availableClasses[i].getName() << "\nThe available Slots are: " << availableClasses[i].getAvailableSlots() << endl;
+    }
+    
+    cout<<"\nPLease Enter your name for Entry: ";
+    string memberName;
+    cin>>memberName;
+   
+    size_t selection;
+    cout << "Enter the number corresponding to the fitness class you want to book: ";
+    cin >> selection;
+
+   
+    if (selection >= 1 && selection <= availableClasses.size()) {
+        FitnessClass* selectedClass = &availableClasses[selection - 1];
+
+        if (gym.bookClass(memberName, selectedClass)) {
+            cout << "\nBooking Successful! " << memberName << " is now booked for " << selectedClass->getName() << endl;
+        } else {
+            cout << "\nBooking Failed. No available slots for " << selectedClass->getName() << endl;
+        }
+    } else {
+        cout << "Invalid selection." << endl;
+    }
+    
+    return 0;
+}
